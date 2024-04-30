@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Библиотека фильмов</title>
+</head>
+<body>
+  <header>
+    <h1>Библиотека фильмов</h1>
+  </header>
+
+  <section id="add-film">
+    <h2>Добавить новый фильм:</h2>
+    <form id="add-film-form">
+      <label for="title">Название:</label>
+      <input type="text" id="title" name="title">
+
+      <label for="director">Режисер:</label>
+      <input type="text" id="director" name="director">
+
+      <label for="year">Год:</label>
+      <input type="number" id="year" name="year">
+
+      <label for="genre">Жанр:</label>
+      <input type="text" id="genre" name="genre">
+
+      <button type="submit" id="add-film-btn">Добавить</button>
+    </form>
+  </section>
+
+  <section id="film-list-container">
+    <h2>Фильмы: </h2>
+    <ul id="film-list"></ul>
+  </section>
+
+  <script>
+
+    function Film(title, director, year, genre) {
+      this.title = title;
+      this.director = director;
+      this.year = year;
+      this.genre = genre;
+    }
+
+    let filmLibrary = [];
+
+    function addFilm(title, director, year, genre) {
+      let newFilm = new Film(title, director, year, genre);
+      filmLibrary.push(newFilm);
+    }
+
+    function removeFilm(title) {
+      filmLibrary = filmLibrary.filter(film => film.title !== title);
+    }
+
+    function editFilm(oldTitle, newTitle, newDirector, newYear, newGenre) {
+      for (let i = 0; i < filmLibrary.length; i++) {
+        if (filmLibrary[i].title === oldTitle) {
+          filmLibrary[i].title = newTitle;
+          filmLibrary[i].director = newDirector;
+          filmLibrary[i].year = newYear;
+          filmLibrary[i].genre = newGenre;
+          break;
+        }
+      }
+    }
+
+    function displayFilms() {
+      let filmList = document.getElementById('film-list');
+      filmList.innerHTML = '';
+
+      for (let film of filmLibrary) {
+        let li = document.createElement('li');
+        li.textContent = `${film.title} (${film.year}), Срежиссирован ${film.director}, Жанр: ${film.genre}`;
+
+        let editBtn = document.createElement('button');
+        editBtn.textContent = 'Изменить';
+        editBtn.addEventListener('click', function() {
+          let title = prompt('Введите название:', film.title);
+          let director = prompt('Введите режисера:', film.director);
+          let year = prompt('Введите год:', film.year);
+          let genre = prompt('Введите жанр:', film.genre);
+
+          if (validateInput(title, director, year, genre)) {
+            editFilm(film.title, title, director, year, genre);
+            displayFilms();
+          }
+        });
+
+        let deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Удалить';
+        deleteBtn.addEventListener('click', function() {
+          if (confirm(`Вы точно хотите удалить "${film.title}"?`)) {
+            removeFilm(film.title);
+            displayFilms();
+          }
+        });
+
+        li.appendChild(editBtn);
+        li.appendChild(deleteBtn);
+        filmList.appendChild(li);
+      }
+    }
+
+    function validateInput(title, director, year, genre) {
+      if (title === '' || director === '' || year === '' || genre === '') {
+        alert('Все поля должны быть заполнены.');
+        return false;
+      }
+
+      if (isNaN(year) || year < 1888 || year > new Date().getFullYear()) {
+        alert('Пожалуйста, введите верный год (1888 - текущий год).');
+        return false;
+      }
+
+      return true;
+    }
+
+    document.getElementById('add-film-btn').addEventListener('click', function(event) {
+      event.preventDefault();
+      let title = document.getElementById('title').value;
+      let director = document.getElementById('director').value;
+      let year = document.getElementById('year').value;
+      let genre = document.getElementById('genre').value;
+
+      if (validateInput(title, director, year, genre)) {
+        addFilm(title, director, year, genre);
+        displayFilms();
+      }
+    });
+  </script>
+
+</body>
+</html>
